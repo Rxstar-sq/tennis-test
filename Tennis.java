@@ -18,184 +18,196 @@ public class Tennis {
 	
 	
 	
-    private int playerAPoints, playerBPoints;
-    private int playerAGames, playerBGames;
-    private int playerASets, playerBSets;
-    private boolean playerAServing;
-    private boolean tiebreak;
-    private String playerAName, playerBName;
-    private boolean isBestOfFive, isPlayingTiebreaks, isGrandSlam;
 
-    public Tennis(String playerAName, String playerBName, boolean playerAServing, boolean tiebreak, boolean isBestOfFive) {
-        this.playerAPoints = this.playerBPoints = 0;
-        this.playerAGames = this.playerBGames = 0;
-        this.playerASets = this.playerBSets = 0;
-        this.playerAName = playerAName;
-        this.playerBName = playerBName;
-        this.playerAServing = playerAServing;
-        this.tiebreak = tiebreak;
-        this.isBestOfFive = isBestOfFive;
-        this.isPlayingTiebreaks = false;
-        this.isGrandSlam = false;
-    }
+	    private String playerAName, playerBName;
+	    private int playerAPoints, playerBPoints, playerAGames, playerBGames, playerASets, playerBSets;
+	    private boolean isBestOfFive, isPlayingTiebreaks, isGrandSlam, playerAServing;
+	    private boolean tiebreak;
+	    private boolean matchWon; // To lock further changes after match win
 
-    public String getPlayerAName() {
-        return playerAName;
-    }
+	    public Tennis(String playerAName, String playerBName, boolean isBestOfFive, boolean isPlayingTiebreaks, boolean isGrandSlam) {
+	        this.playerAName = playerAName;
+	        this.playerBName = playerBName;
+	        this.isBestOfFive = isBestOfFive;
+	        this.isPlayingTiebreaks = isPlayingTiebreaks;
+	        this.isGrandSlam = isGrandSlam;
+	        this.playerAServing = true;
+	        this.playerAPoints = this.playerBPoints = 0;
+	        this.playerAGames = this.playerBGames = 0;
+	        this.playerASets = this.playerBSets = 0;
+	        this.tiebreak = false;
+	        this.matchWon = false;
+	    }
 
-    public String getPlayerBName() {
-        return playerBName;
-    }
+	    public void winPoint(boolean playerAWins) {
+	        if (matchWon) return; // end match
+	        if (playerAWins) {
+	            playerAPoints++;
+	        } else {
+	            playerBPoints++;
+	        }
+	        checkGameWin();
+	    }
 
-    public boolean getPlayerAServing() {
-        return playerAServing;
-    }
+	    public void winGame(boolean playerAWins) {
+	        if (matchWon) return; // end match
+	        if (playerAWins) {
+	            playerAGames++;
+	        } else {
+	            playerBGames++;
+	        }
+	        checkSetWin();
+	        resetPoints();
+	    }
 
-    public int getPlayerASets() {
-        return playerASets;
-    }
+	    public void winSet(boolean playerAWins) {
+	        if (matchWon) return; // end match
+	        if (playerAWins) {
+	            playerASets++;
+	        } else {
+	            playerBSets++;
+	        }
+	        checkMatchWin();
+	        resetGames();
+	    }
 
-    public int getPlayerBSets() {
-        return playerBSets;
-    }
+	    public String getCallOut() {
+	    	 int requiredSets = isBestOfFive ? 3 : 2;
+	    	    if (playerASets == requiredSets) {
+	    	        return "Game, Set and Match: " + getPlayerAName();
+	    	    } else if (playerBSets == requiredSets) {
+	    	        return "Game, Set and Match: " + getPlayerBName();
+	    	    }
+	    	    
+	    	    // Check if a set is won
+	    	    if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
+	    	        return "Game and Set: " + getPlayerAName();
+	    	    } else if (playerBGames >= 6 && playerBGames - playerAGames >= 2) {
+	    	        return "Game and Set: " + getPlayerBName();
+	    	    }
 
-    public int getPlayerAGames() {
-        return playerAGames;
-    }
 
-    public int getPlayerBGames() {
-        return playerBGames;
-    }
+	    	    if (playerAPoints == playerBPoints) {
+	    	        if (playerAPoints >= 3) {
+	    	            return "Deuce";
+	    	        } else {
+	    	            return getPlayerAScore() + "-All";
+	    	        }
+	    	    } else if (playerAPoints >= 4 || playerBPoints >= 4) {
+	    	        return "Advantage " + (playerAPoints > playerBPoints ? getPlayerAName() : getPlayerBName());
+	    	    } else {
+	    	        return getPlayerAScore() + "-" + getPlayerBScore();
+	    	    }
+	    }
 
-    public String getPlayerAScore() {
-        if (tiebreak) {
-            return String.valueOf(playerAPoints);
-        }
-        switch (playerAPoints) {
-            case 0: return "0";
-            case 1: return "15";
-            case 2: return "30";
-            case 3: return "40";
-            default: return "AD";
-        }
-    }
+	    public String getPlayerAName() {
+	        return playerAName;
+	    }
 
-    public String getPlayerBScore() {
-        if (tiebreak) {
-            return String.valueOf(playerBPoints);
-        }
-        switch (playerBPoints) {
-            case 0: return "0";
-            case 1: return "15";
-            case 2: return "30";
-            case 3: return "40";
-            default: return "AD";
-        }
-    }
+	    public String getPlayerBName() {
+	        return playerBName;
+	    }
 
-    public void winPoint(boolean playerAWins) {
-        if (playerAWins) {
-            playerAPoints++;
-        } else {
-            playerBPoints++;
-        }
-        checkGameWin();
-    }
+	    public int getPlayerAGames() {
+	        return playerAGames;
+	    }
 
-    public void winGame(boolean playerAWins) {
-        if (playerAWins) {
-            playerAGames++;
-        } else {
-            playerBGames++;
-        }
-        checkSetWin();
-        resetPoints();
-    }
+	    public int getPlayerBGames() {
+	        return playerBGames;
+	    }
 
-    public void winSet(boolean playerAWins) {
-        if (playerAWins) {
-            playerASets++;
-        } else {
-            playerBSets++;
-        }
-        checkMatchWin();
-        resetGames();
-    }
+	    public int getPlayerASets() {
+	        return playerASets;
+	    }
 
-    private void checkGameWin() {
-        if (tiebreak) {
-            if (playerAPoints >= 7 && playerAPoints - playerBPoints >= 2) {
-                winGame(true);
-                tiebreak = false;
-            } else if (playerBPoints >= 7 && playerBPoints - playerAPoints >= 2) {
-                winGame(false);
-                tiebreak = false;
-            }
-        } else {
-            if (playerAPoints >= 4 && playerAPoints - playerBPoints >= 2) {
-                winGame(true);
-            } else if (playerBPoints >= 4 && playerBPoints - playerAPoints >= 2) {
-                winGame(false);
-            }
-        }
-    }
+	    public int getPlayerBSets() {
+	        return playerBSets;
+	    }
 
-    private void checkSetWin() {
-        if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
-            winSet(true);
-        } else if (playerBGames >= 6 && playerBGames - playerAGames >= 2) {
-            winSet(false);
-        } else if (playerAGames == 6 && playerBGames == 6 && isPlayingTiebreaks) {
-            tiebreak = true;
-        }
-    }
+	    public boolean getPlayerAServing() {
+	        return playerAServing;
+	    }
 
-    private void checkMatchWin() {
-        if ((isBestOfFive && playerASets >= 3) || (!isBestOfFive && playerASets >= 2)) {
-            System.out.println("Game, Set and Match: " + getPlayerAName());
-        } else if ((isBestOfFive && playerBSets >= 3) || (!isBestOfFive && playerBSets >= 2)) {
-            System.out.println("Game, Set and Match: " + getPlayerBName());
-        }
-    }
+	    public String getPlayerAScore() {
+	        if (tiebreak) return " " + playerAPoints;
+	        if (playerAPoints >= 4 && Math.abs(playerAPoints - playerBPoints) >= 1) {
+	            return " " + playerAPoints; 
+	        }
+	        switch (playerAPoints) {
+	            case 0: return " 0";
+	            case 1: return " 15";
+	            case 2: return " 30";
+	            case 3: return " 40";
+	            default: return " AD";
+	        }
+	    }
+
+	    public String getPlayerBScore() {
+	        if (tiebreak) return " " + playerBPoints;
+	        if (playerBPoints >= 4 && Math.abs(playerBPoints - playerAPoints) >= 1) {
+	            return " " + playerBPoints;  
+	        }
+	        switch (playerBPoints) {
+	            case 0: return " 0";
+	            case 1: return " 15";
+	            case 2: return " 30";
+	            case 3: return " 40";
+	            default: return " AD";
+	        }
+	    }
+
+	    private void checkGameWin() {
+	        if (tiebreak) {
+	        	if (playerAGames == 6 && playerBGames == 6) {
+	                tiebreak = true;  // Start the tiebreak game
+	            } else if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
+	                winSet(true);  // Player A wins the set
+	            } else if (playerBGames >= 6 && playerBGames - playerAGames >= 2) {
+	                winSet(false);  // Player B wins the set
+	            }
+	        } else {
+	            // Advantage system: Must win by at least 2 games after 6-6
+	            if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
+	                winSet(true);  // Player A wins the set
+	            } else if (playerBGames >= 6 && playerBGames - playerAGames >= 2) {
+	                winSet(false);  // Player B wins the set
+	            }
+	        }
+	    }
+
+	    private void checkSetWin() {
+	        if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
+	            winSet(true);
+	        } else if (playerBGames >= 6 && playerBGames - playerAGames >= 2) {
+	            winSet(false);
+	        } else if (playerAGames == 6 && playerBGames == 6 && isPlayingTiebreaks) {
+	            tiebreak = true;
+	        }
+	    }
+
+	    private void checkMatchWin() {
+	        int requiredSets = isBestOfFive ? 3 : 2;
+	        if (playerASets >= requiredSets) {
+	            matchWon = true; // end match
+	        } else if (playerBSets >= requiredSets) {
+	            matchWon = true; // end match
+	        }
+	    }
+
+	    private void resetPoints() {
+	        playerAPoints = playerBPoints = 0;
+	        toggleServer();
+	    }
+
+	    private void resetGames() {
+	        playerAGames = playerBGames = 0;
+	    }
+
+	    private void toggleServer() {
+	        playerAServing = !playerAServing;
+	    }
+
     
-    private void resetPoints() {
-        playerAPoints = playerBPoints = 0;
-        toggleServer();
-    }
-
-    private void resetGames() {
-        playerAGames = playerBGames = 0;
-    }
-
-    private void toggleServer() {
-        playerAServing = !playerAServing;
-    }
-
-    public String getCallOut() {
-        if (tiebreak) {
-            if (playerAPoints == playerBPoints) {
-                return playerAPoints + "-All";
-            } else if (playerAPoints > playerBPoints) {
-                return playerAPoints + "-" + playerBPoints + " " + playerAName;
-            } else {
-                return playerBPoints + "-" + playerAPoints + " " + playerBName;
-            }
-        } else {
-            if (playerAPoints == playerBPoints) {
-                if (playerAPoints >= 3) {
-                    return "Deuce";
-                } else {
-                    return getPlayerAScore() + "-All";
-                }
-            } else if (playerAPoints >= 4 || playerBPoints >= 4) {
-                return "Advantage " + (playerAPoints > playerBPoints ? playerAName : playerBName);
-            } else {
-                return getPlayerAScore() + "-" + getPlayerBScore();
-            }
-        }
-    }
-	
-	
     @Override
        
     public String toString() {
@@ -281,8 +293,8 @@ public class Tennis {
     public void runSets(String setList) {
 	for (int i = 0; i < setList.length(); ++i) {
 	    if (setList.charAt(i) == 'a') {
-		winSet(true);
-	    } else if (setList.charAt(i) == 'b') {
+		winSet(true);	
+	    } else if (setList.charAt(i) == 'b') {	
 		winSet(false);
 	    } else {
 		// skip the character silently
