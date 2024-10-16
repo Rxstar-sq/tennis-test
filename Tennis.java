@@ -26,7 +26,6 @@ public class Tennis {
     private String playerAName, playerBName;
     private boolean isBestOfFive, isPlayingTiebreaks, isGrandSlam;
 
-    // Constructor
     public Tennis(String playerAName, String playerBName, boolean playerAServing, boolean tiebreak, boolean isBestOfFive) {
         this.playerAPoints = this.playerBPoints = 0;
         this.playerAGames = this.playerBGames = 0;
@@ -40,7 +39,6 @@ public class Tennis {
         this.isGrandSlam = false;
     }
 
-    // Accessor methods
     public String getPlayerAName() {
         return playerAName;
     }
@@ -95,7 +93,6 @@ public class Tennis {
         }
     }
 
-    // Mutator methods
     public void winPoint(boolean playerAWins) {
         if (playerAWins) {
             playerAPoints++;
@@ -125,7 +122,6 @@ public class Tennis {
         resetGames();
     }
 
-    // Check if a game is won
     private void checkGameWin() {
         if (tiebreak) {
             if (playerAPoints >= 7 && playerAPoints - playerBPoints >= 2) {
@@ -144,7 +140,6 @@ public class Tennis {
         }
     }
 
-    // Check if a set is won
     private void checkSetWin() {
         if (playerAGames >= 6 && playerAGames - playerBGames >= 2) {
             winSet(true);
@@ -155,7 +150,6 @@ public class Tennis {
         }
     }
 
-    // Check if a match is won
     private void checkMatchWin() {
         if ((isBestOfFive && playerASets >= 3) || (!isBestOfFive && playerASets >= 2)) {
             System.out.println("Game, Set and Match: " + getPlayerAName());
@@ -163,24 +157,20 @@ public class Tennis {
             System.out.println("Game, Set and Match: " + getPlayerBName());
         }
     }
-
-    // Reset points after a game
+    
     private void resetPoints() {
         playerAPoints = playerBPoints = 0;
         toggleServer();
     }
 
-    // Reset games after a set
     private void resetGames() {
         playerAGames = playerBGames = 0;
     }
 
-    // Toggle server after a game
     private void toggleServer() {
         playerAServing = !playerAServing;
     }
 
-    // Callout logic for the game
     public String getCallOut() {
         if (tiebreak) {
             if (playerAPoints == playerBPoints) {
